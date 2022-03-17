@@ -16,9 +16,9 @@
  * 14. ascending()
  * 15. descending()
  *
- *          Menu
- *        /      \
- * Linked list   Stack Implement using Linked list
+ *                       Menu
+ *        /                |                   \
+ * Linked list Binary Search Tree   Stack Implement using Linked list
  * */
 #include <stdio.h>
 #include <stdlib.h>
@@ -436,19 +436,17 @@ void linkedList() {
     printf("----------Linked List----------\n");
     struct Node* var = new();
     while(true) {
-        int n = 0;
+        int n;
         printf("Size of data:");
         scanf("%d",&n);
-
         if (n == 0) {
             continue;
         } else {
             int data = 0;
-
-            for(int i=0; i<n; i++){
-                printf("Please enter Index No. %d's value:",i);
-                scanf("%d",&data);
-                if (i == 0){
+            for (int i = 0; i < n; i++) {
+                printf("Please enter Index No. %d's value:", i);
+                scanf("%d", &data);
+                if (i == 0) {
                     var->data = data;
                     var->address = NULL;
                 } else {
@@ -472,9 +470,9 @@ void stackwithLinkedList() {
     int data = 0;
 
     while (true) {
-        printf("Please enter a value (Enter -99 to stop):");
-        scanf("%d",&data);
-        if (data == -99){
+        printf("Please enter a value (Enter ! to stop):");
+        scanf("%d", &data);
+        if (data == 33) {
             break;
         } else if (statement == true) {
             var->data = data;
@@ -489,25 +487,258 @@ void stackwithLinkedList() {
         num++;
         n--;
         firstTime = false;
+
+        if (firstTime == false) {
+            for (int i = 0; i < num; i++) {
+                swap(&var, i, num - 1);
+                num--;
+            }
+
+            print(var);
+            options(var, 1);
+        }
+    }
+}
+
+struct b_tree {
+    int data;
+    struct b_tree *left, *right;
+};
+
+struct b_tree* newNode(int item) {
+    struct b_tree* temp = (struct b_tree*)malloc(sizeof (struct b_tree));
+    temp->data = item;
+    temp->left = temp->right = NULL;
+};
+
+struct b_tree* insert(struct b_tree* root, int data){
+    if (root == NULL){
+        return newNode(data);
+    } else {
+        if (data < root->data){
+            root->left = insert(root->left, data);
+        } else if (data > root->data){
+            root->right = insert(root->right, data);
+        } else {
+            printf("Data already exists.\n");
+            return root;
+        }
+    }
+    return root;
+}
+
+struct b_tree* delete(struct b_tree* root, int key) {
+    if (root == NULL) {
+        return root;
+    }
+    if (root->data < key) {
+        root->left = delete(root->left, key);
+        return root;
+    } else if (root->data > key) {
+        root->right = delete(root->right, key);
+        return root;
     }
 
-    if (firstTime == false) {
-        for(int i=0; i<num; i++){
-            swap(&var, i, num-1);
-            num--;
+    if (root->left == NULL) {
+        struct b_tree* temp = root->right;
+        free(root);
+        return temp;
+    } else if (root->right == NULL) {
+        struct b_tree* temp = root->right;
+        free(root);
+        return temp;
+    } else {
+        struct b_tree* parent = root;
+        struct b_tree* child = root->right;
+        while (child->left != NULL) {
+            parent = child;
+            child = child->left;
         }
+        if (parent != root) {
+            parent->left = child->right;
+        } else {
+            parent->right = child->right;
+        }
+        root->data = child->data;
+        free(child);
+        return root;
+    }
+}
 
-        print(var);
-        options(var, 1);
+int countTree(struct b_tree* node, int key) {
+    if (node != NULL) {
+        key = countTree(node->left, key++);
+        key = countTree(node->right, key++);
+        key++;
+        return key;
+    }
+}
+
+bool searchTree(struct b_tree* root, int key) {
+    if (root == NULL) {
+        return false;
+    } else if (root->data == key) {
+        return true;
+    }
+    if (key < root->data) {
+        bool flag = searchTree(root->left, key);
+        return flag;
+    } else if (key > root->data) {
+        bool flag = searchTree(root->right, key);
+        return flag;
+    }
+}
+
+struct b_tree* render(struct b_tree* root, int key, int data) {
+    if (root == NULL){
+        return root;
+    } else {
+        if (key < root->data){
+            root->left = render(root->left, key, data);
+        } else if (key > root->data){
+            root->right = render(root->right, key, data);
+        } else {
+            if (root->left == NULL && root->right == NULL ) {
+                root->data = data;
+                return root;
+            } else if (data > (root->left)->data && data < (root->right)->data) {
+                root->data = data;
+                return root;
+            } else {
+                return root;
+            }
+        }
+    }
+    return root;
+}
+
+struct b_tree* replace(struct b_tree* node, int key, int data) {
+    bool flag = searchTree(node, key);
+    bool flag2 = searchTree(node, data);
+
+    if (flag == true && flag2 == false) {
+        node = render(node, key, data);
+    } else {
+        printf("Invalid data.\n");
+    }
+    return node;
+}
+
+void inorder(struct b_tree* root){
+    if (root == NULL) {
+        return;
+    }
+    inorder(root->left);
+    printf("%d, ",root->data);
+    inorder(root->right);
+}
+
+void preorder(struct b_tree* root){
+    if (root == NULL) {
+        return;
+    }
+    printf("%d, ",root->data);
+    preorder(root->left);
+    preorder(root->right);
+
+}
+
+void postorder(struct b_tree* root){
+    if (root == NULL) {
+        return;
+    }
+    preorder(root->left);
+    preorder(root->right);
+    printf("%d, ", root->data);
+}
+
+void BST() {
+    printf("----------Binary Search Tree----------\n");
+    int size;
+    int menu;
+    int data;
+    struct b_tree* root = NULL;
+    while (true) {
+        printf("Size of data:");
+        scanf("%d",&size);
+        if (size == 0) {
+            continue;
+        } else {
+            for (int i=0; i<size; i++) {
+                data = 0;
+                printf("Please enter data:");
+                scanf("%d", &data);
+                root = insert(root, data);
+            }
+            break;
+        }
+    }
+    while (true) {
+        printf("----------Menu----------\n"
+               "1. Insert\n"
+               "2. Delete\n"
+               "3. Count\n"
+               "4. Replace\n"
+               "5. Inorder Traversal\n"
+               "6. Preorder Traversal\n"
+               "7. Postorder Traversal\n"
+               "0. Exit\n"
+               "Choice:");
+        scanf("%d", &menu);
+        if (menu == 0) {
+            break;
+        } else if (menu == 1) {
+            printf("Please enter data to insert:");
+            scanf("%d", &data);
+            root = insert(root, data);
+            continue;
+        } else if (menu == 2) {
+            printf("Please enter data to delete:");
+            scanf("%d", &data);
+            root = delete(root, data);
+            continue;
+        } else if (menu == 3) {
+            int data = countTree(root, 0);
+            printf("Size of data in the Tree: %d\n", data);
+            continue;
+        } else if (menu == 4){
+            int existingData = 0;
+            int newData = 0;
+            printf("Data in the tree:  {");
+            inorder(root);
+            printf("}\n");
+            printf("Select existing data:");
+            scanf("%d",&existingData);
+            printf("Enter new data to replace:");
+            scanf("%d",&newData);
+            root = replace(root, existingData, newData);
+            continue;
+        } else if (menu == 5){
+            printf("{");
+            inorder(root);
+            printf("}\n");
+            continue;
+        } else if (menu == 6){
+            printf("{");
+            preorder(root);
+            printf("}\n");
+            continue;
+        } else if (menu == 7){
+            printf("{");
+            postorder(root);
+            printf("}\n");
+            continue;
+        }
     }
 }
 
 void menu(){
-    int menu = 0;
+    int menu;
     while (true) {
         printf("----------Menu----------\n"
                "1. Linked List\n"
-               "2. Stack Implement with Lined List\n"
+               "2. Stack Implement with Linked List\n"
+               "3. Binary Search Tree\n"
                "0. Exit\n"
                "Choice:");
         scanf("%d",&menu);
@@ -516,6 +747,9 @@ void menu(){
             continue;
         } else if (menu == 2) {
             stackwithLinkedList();
+            continue;
+        } else if (menu == 3) {
+            BST();
             continue;
         } else {
             break;
