@@ -601,9 +601,11 @@ struct b_tree* render(struct b_tree* root, int key, int data) {
             if (root->left == NULL && root->right == NULL ) {
                 root->data = data;
                 return root;
-            } else if (data > (root->left)->data && data < (root->right)->data) {
-                root->data = data;
-                return root;
+            } else if ((root->left == NULL) || (data > (root->left)->data)) {
+                if ((root->right == NULL) || (data < (root->right)->data)) {
+                    root->data = data;
+                    return root;
+                }
             } else {
                 return root;
             }
